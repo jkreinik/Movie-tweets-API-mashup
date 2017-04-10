@@ -6,7 +6,6 @@ import unittest
 import itertools
 import collections
 import tweepy
-import twitter_info # same deal as always...
 import json
 import sqlite3
 import re 
@@ -41,11 +40,30 @@ class OMDB_tests(unittest.TestCase):
 		self.assertEqual(type(y), tuple)
 	def test_4(self): 
 		x = movies(star_wars_info_dic)
-		self.assertEqual(x.leading_actor, 'Mark Hamill')	
+		self.assertEqual(x.leading_actor, 'Mark Hamill')
+
+class twitter_tests(unittest.TestCase):		
+	def test_5(self):
+		x = twitter_user('Mark Hamill')
+		y = x.get_num_followers
+		self.assertEqual(y, 1740000)	
+	def test_6(self): 
+		x = twitter_user('Mark Hamill')
+		y = x.get_user_id()
+		self.assertEqual(type(y), int)
+	def test_7(self): 
+		x = twitter_user('Mark Hamill')
+		y = x.num_favs()
+		self.assertEqual(type(y), int)
+
+		
 		
 
 
 
-	unittest.main(verbosity=2)
+
+
+
+unittest.main(verbosity=2)
 
 ## Remember to invoke all your tests...
