@@ -55,8 +55,11 @@ class twitter_tests(unittest.TestCase):
 		x = twitter_user('Mark Hamill')
 		y = x.num_favs()
 		self.assertEqual(type(y), int)
+	def test_8(self): 
+		x = twitter_user('Mark Hamill')
+		y = x.get_location()
+		self.assertEqual(type(y), str)
 
-		
 		
 
 
