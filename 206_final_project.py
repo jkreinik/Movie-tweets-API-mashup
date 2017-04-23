@@ -202,7 +202,7 @@ for x in tweet_dic_lst:
 		tweet_tup = (id_str, user_id, text, num_retweets, num_favs, movie_search)
 		tweet_data_tup_lst.append(tweet_tup) 
 
-pprint (tweet_data_tup_lst)
+#pprint (tweet_data_tup_lst)
 
 #---------------------------------------------Tweets SQL---------------------------------------------------
 
@@ -228,6 +228,86 @@ conn.close()
 
 
 #--------------------------------------------Twitter Users-----------------------------------------------------
+
+twitter_user_CACHE_FNAME = "Twitter_user_cache.json"
+
+try: 
+	twitter_user_cahche_file = open(twitter_CACHE_FNAME, 'r')
+	twitter_user_cache_contents = twitter_cahche_file.read()
+	twitter_user_cahche_file.close()
+	twitter_user_CACHE_DICTION = json.loads(twitter_cache_contents)
+except: 
+	twitter_user_CACHE_DICTION = {} 
+
+
+actor_search_tweets = [actor_1_tweets, actor_2_tweets, actor_3_tweets]
+#pprint (actor_search_tweets[0][0]['user'])
+
+twitter_user_data = []
+for x in actor_search_tweets: 
+	for user in x: 
+		user_id_str = user['user']['id_str']
+		user_screename = user['user']['screen_name']
+		user_num_favs = user['user']['favourites_count']
+		user_num_followers = user['user']['followers_count']
+		user_location = user['user']['location']
+
+
+		twitter_user_tup = (user_id_str, user_screename, user_num_favs, user_num_followers, user_location)
+		twitter_user_data.append(twitter_user_tup)
+
+		if user_screename not in twitter_user_CACHE_DICTION: 
+			twitter_user_CACHE_DICTION[user_screename] = user['user']
+			twitter_user_cahche_file = open(twitter_user_CACHE_FNAME, 'w')
+			twitter_user_cahche_file.write(json.dumps(twitter_user_CACHE_DICTION))
+			twitter_user_cahche_file.close()
+
+for x in actor_search_tweets: 
+	for user in x: 
+		users = user['entities']['user_mentions']	
+		for a in users: 
+			user_mentions = api.get_user(a['screen_name']) 
+			user_id_str = user_mentions['id_str']
+			user_screename = user_mentions['screen_name']
+			user_num_favs = user_mentions['favourites_count']
+			user_num_followers = user_mentions['followers_count']
+			user_location = user_mentions['location']
+
+			twitter_user_tup = (user_id_str, user_screename, user_num_favs, user_num_followers, user_location)	
+			twitter_user_data.append(twitter_user_tup)
+
+			if a['screen_name'] not in twitter_user_CACHE_DICTION: 
+				twitter_user_CACHE_DICTION[user_screename] = user_mentions
+				twitter_user_cahche_file = open(twitter_user_CACHE_FNAME, 'w')
+				twitter_user_cahche_file.write(json.dumps(twitter_user_CACHE_DICTION))
+				twitter_user_cahche_file.close()
+
+pprint (twitter_user_data)		
+
+#---------------------------------------- Twitter User SQL -------------------------------------#		
+conn = sqlite3.connect('final_project.db')
+cur = conn.cursor()
+
+cur.execute('DROP TABLE IF EXISTS Users') 
+
+table_spec = 'CREATE TABLE IF NOT EXISTS '
+table_spec += 'Users (user_id_str TEXT PRIMARY KEY, '
+table_spec += 'screen_name TEXT, user_num_favs INTEGER, user_num_followers INTEGER, user_location TEXT)'
+cur.execute(table_spec)
+
+
+statement = 'INSERT or IGNORE INTO Users VALUES (?, ?, ?, ?, ?)'
+
+for a in twitter_user_data: 
+	cur.execute(statement, a)
+conn.commit()
+
+conn.close()	
+
+
+
+
+
 
 
 
