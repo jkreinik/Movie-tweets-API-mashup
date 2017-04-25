@@ -139,7 +139,7 @@ for a in all_movie_data_tup:
 conn.commit()	
 
 
-#-----------------------------------Twitter Tweets-----------------------------------------#
+#-------------------------------------------- Twitter Tweets -----------------------------------------#
 
 consumer_key = twitter_info.consumer_key
 consumer_secret = twitter_info.consumer_secret
@@ -224,7 +224,7 @@ for a in tweet_data_tup_lst:
 	cur.execute(statement, a)
 conn.commit()
 
-conn.close()	
+	
 
 
 #--------------------------------------------Twitter Users-----------------------------------------------------
@@ -282,7 +282,7 @@ for x in actor_search_tweets:
 				twitter_user_cahche_file.write(json.dumps(twitter_user_CACHE_DICTION))
 				twitter_user_cahche_file.close()
 
-pprint (twitter_user_data)		
+#pprint (twitter_user_data)		
 
 #---------------------------------------- Twitter User SQL -------------------------------------#		
 conn = sqlite3.connect('final_project.db')
@@ -302,7 +302,49 @@ for a in twitter_user_data:
 	cur.execute(statement, a)
 conn.commit()
 
-conn.close()	
+	
+
+#------------------------------------------- Queries ----------------------------------------
+cur.execute('SELECT screen_name, user_num_followers FROM Users WHERE user_num_followers > 10000')
+high_follower_count = cur.fetchall()
+
+cur.execute('SELECT Movies.lead_actor, Tweets.tweet_text FROM Movies INNER JOIN Tweets ON Movies.lead_actor = Tweets.actor_search WHERE Tweets.num_retweets > 50') 
+movie_data = cur.fetchall()
+
+cur.execute('SELECT user_num_followers, user_num_favs, screen_name FROM Users WHERE user_num_followers > user_num_favs')
+high_follower_to_fav_ratio = cur.fetchall()
+
+
+
+
+#------------------------------------------- Data Processing ----------------------------------
+# Number 1: Sorting 
+
+top_tweeters = sorted(high_follower_count, key = lambda x: x[1], reverse = True)
+data_process_1 = 'Here is a list of users that have over 10,000 followers. To see which one of these users has the most influence, they have been sorted from most followers to least followers: \n' + str(top_tweeters)
+
+print ('------------------------- Data Processing 1 Sorting --------------------------')
+print (data_process_1)
+print('\n\n')
+
+#Number 2: Data mapping 
+
+def get_follower_to_fav_ratio(x):
+	if x[1] != 0:
+		ratio = (x[0])/(x[1])
+	return (ratio, x[2]) 
+
+fav_ratio = map(get_follower_to_fav_ratio, high_follower_to_fav_ratio)
+fav_ratio_lst = []
+for x in fav_ratio: 
+	ratio_screename = (x[0],x[1])
+	fav_ratio_lst.append(ratio_screename)
+print ('------------------------- Data Processing 2 Mapping --------------------------')
+print(fav_ratio_lst)
+
+
+
+
 
 
 
