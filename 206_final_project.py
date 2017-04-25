@@ -308,12 +308,17 @@ conn.commit()
 cur.execute('SELECT screen_name, user_num_followers FROM Users WHERE user_num_followers > 10000')
 high_follower_count = cur.fetchall()
 
-cur.execute('SELECT Movies.lead_actor, Tweets.tweet_text FROM Movies INNER JOIN Tweets ON Movies.lead_actor = Tweets.actor_search WHERE Tweets.num_retweets > 50') 
+cur.execute('SELECT Movies.lead_actor, Tweets.num_retweets FROM Movies INNER JOIN Tweets ON Movies.lead_actor = Tweets.actor_search') 
 movie_data = cur.fetchall()
 
 cur.execute('SELECT user_num_followers, user_num_favs, screen_name FROM Users WHERE user_num_followers > user_num_favs')
 high_follower_to_fav_ratio = cur.fetchall()
 
+cur.execute('SELECT tweet_text FROM Tweets') 
+all_tweets = cur.fetchall()
+
+cur.execute('SELECT num_retweets FROM Tweets')
+all_retweets = cur.fetchall() 
 
 
 
@@ -332,15 +337,48 @@ print('\n\n')
 def get_follower_to_fav_ratio(x):
 	if x[1] != 0:
 		ratio = (x[0])/(x[1])
-	return (ratio, x[2]) 
+		return (ratio, x[2]) 
 
 fav_ratio = map(get_follower_to_fav_ratio, high_follower_to_fav_ratio)
 fav_ratio_lst = []
 for x in fav_ratio: 
-	ratio_screename = (x[0],x[1])
+	ratio_screename = x
 	fav_ratio_lst.append(ratio_screename)
+
+	
+data_process_2 = 'Here is a list of users that have more followers than total favourites. This means that their influence on twitter is greater than their usage of twitter: \n' + str(fav_ratio_lst)
 print ('------------------------- Data Processing 2 Mapping --------------------------')
-print(fav_ratio_lst)
+print(data_process_2)
+print ('\n\n')
+
+#Number 3 Dictionary accumulation 
+total_actor_retweets = {}
+
+for x in movie_data: 
+	if x[0] not in total_actor_retweets: 
+		total_actor_retweets[x[0]] = x[1]
+	else: 
+		total_actor_retweets[x[0]] += x[1]
+
+data_process_3 = 'Here is a dictionary with actors as keys and total number of retweets based on those actors as values. We can see what actor has accumulated the most retweets on all tweets generated about them. The dictonary is as follows: \n' + str(total_actor_retweets)		
+			
+
+print ('------------------------- Data Processing 3 Dictionary accumulation --------------------------')
+print(data_process_3)
+print ('\n\n')
+
+#Number 4 list comprehension/ zip function 
+
+length_of_tweet = [len(x[0]) for x in all_tweets] 
+retweets_of_tweet = [x[0] for x in all_retweets]
+zip_length_and_num_retweets = zip(length_of_tweet, retweets_of_tweet) 
+length_and_num_retweets = [x for x in zip_length_and_num_retweets]
+
+data_process_4 = 'Here is a list of two element tuples. The first element in the tuple represents the length of a tweet and the second element represents the number of retweets. I wanted to see of there was a correlation between these two elsements. The tuple is as follows: \n' + str(length_and_num_retweets)
+
+print ('------------------------- Data Processing list comprehension/ zip function -------------------')
+print(data_process_4)
+
 
 
 
