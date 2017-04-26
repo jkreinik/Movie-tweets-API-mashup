@@ -1,3 +1,6 @@
+# Jacob Kreinik SI 206 Final Project 
+# Option 2
+
 import unittest 
 import tweepy 
 import requests 
@@ -326,7 +329,7 @@ all_retweets = cur.fetchall()
 # Number 1: Sorting 
 
 top_tweeters = sorted(high_follower_count, key = lambda x: x[1], reverse = True)
-data_process_1 = 'Here is a list of users that have over 10,000 followers. To see which one of these users has the most influence, they have been sorted from most followers to least followers: \n' + str(top_tweeters)
+data_process_1 = 'Here is a list of users that have over 10,000 followers. To see which one of these users has the most influence, they have been sorted from most followers to least followers. The format is (screen_name, num_followers). The list is as follows: \n' + str(top_tweeters)
 
 print ('------------------------- Data Processing 1 Sorting --------------------------')
 print (data_process_1)
@@ -346,7 +349,7 @@ for x in fav_ratio:
 	fav_ratio_lst.append(ratio_screename)
 
 	
-data_process_2 = 'Here is a list of users that have more followers than total favourites. This means that their influence on twitter is greater than their usage of twitter: \n' + str(fav_ratio_lst)
+data_process_2 = 'Here is a list of users that have more followers than total favorites. This means that their influence on twitter is greater than their usage of twitter: \n' + str(fav_ratio_lst)
 print ('------------------------- Data Processing 2 Mapping --------------------------')
 print(data_process_2)
 print ('\n\n')
@@ -360,7 +363,7 @@ for x in movie_data:
 	else: 
 		total_actor_retweets[x[0]] += x[1]
 
-data_process_3 = 'Here is a dictionary with actors as keys and total number of retweets based on those actors as values. We can see what actor has accumulated the most retweets on all tweets generated about them. The dictonary is as follows: \n' + str(total_actor_retweets)		
+data_process_3 = 'Here is a dictionary with actors as keys and total number of retweets based on those actors as values. We can see what actor has accumulated the most retweets on all tweets generated about them. The dictionary is as follows: \n' + str(total_actor_retweets)		
 			
 
 print ('------------------------- Data Processing 3 Dictionary accumulation --------------------------')
@@ -374,10 +377,74 @@ retweets_of_tweet = [x[0] for x in all_retweets]
 zip_length_and_num_retweets = zip(length_of_tweet, retweets_of_tweet) 
 length_and_num_retweets = [x for x in zip_length_and_num_retweets]
 
-data_process_4 = 'Here is a list of two element tuples. The first element in the tuple represents the length of a tweet and the second element represents the number of retweets. I wanted to see of there was a correlation between these two elsements. The tuple is as follows: \n' + str(length_and_num_retweets)
+data_process_4 = 'Here is a list of two element tuples. The first element in the tuple represents the length of a tweet and the second element represents the number of retweets. I wanted to see if there was a correlation between these two elements. The tuple is as follows: \n' + str(length_and_num_retweets)
 
-print ('------------------------- Data Processing list comprehension/ zip function -------------------')
+print ('------------------------- Data Processing 4 list comprehension/ zip function -------------------')
 print(data_process_4)
+
+conn.close()
+
+#---------------------------------- Text File ------------------------------------------
+text_file = 'final_project_output.txt'
+t_file = open(text_file, 'w')
+t_file.write('Jacob Kreinik Final Output SI 206 W17 Final Project' + '\n\n')
+t_file.write(data_process_1 + '\n\n')
+t_file.write(data_process_2 + '\n\n')
+t_file.write(data_process_3 + '\n\n')
+t_file.write(data_process_4 + '\n\n')
+t_file.close()
+
+#-------------------------------- Test Cases -------------------------------------------
+class Tests(unittest.TestCase): 
+	def test_type_omdb_api_call_and_cache(self):
+		x = omdb_api_call_and_cache('step brothers')
+		self.assertEqual(type(x),type({}))
+	def test_movie_constructor(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual(type(x.imdb_rating), float) 
+	def test_movie_constructor_2(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual((x.director), 'Adam McKay') 
+	def test_movie_get_all_actors(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual(type(x.get_all_actors()), type([])) 	
+	def test_movie_get_lead_actor(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual(x.get_lead_actor(),'Will Ferrell') 
+	def test_movie_get_title(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual((x.get_title()), 'Step Brothers')
+	def test_movie_get_num_lang(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual(type(x.get_num_lang()), int)
+	def test_movie_get_imdb_id(self): 
+		x = Movie(movie_1) #step brothers
+		self.assertEqual(type(x.get_imdb_id()), str) 	 	 			
+	def test_get_movie_data(self):
+		x = get_movie_data(movie_obj_lst) #invoking the function with a list of the three movie objects 
+		self.assertEqual(type(x), type([]))
+		self.assertEqual(type(x[0]), tuple)
+	def test_get_twitter_data(self): 
+		x = get_twitter_data('Will Ferrell')
+		self.assertEqual(type(x[0]), type({}))
+	def test_movie_sql(self): 
+		conn = sqlite3.connect('final_project.db')
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies')
+		result = cur.fetchall()
+		self.assertTrue(len(result[0]), 6)
+		conn.close() 
+		
+
+
+
+if __name__ == "__main__":
+	unittest.main(verbosity=2)		
+
+ 
+			
+
+
 
 
 
